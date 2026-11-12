@@ -1,0 +1,8 @@
+{
+  "name": "Remix Remix SARUS Clothes",
+  "description": "Premium streetwear fashion label in Pakistan featuring Summer, Winter \u0026 All-Season collections with reliable Cash on Delivery nationwide.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

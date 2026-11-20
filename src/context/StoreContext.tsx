@@ -275,46 +275,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) return parsed;
       }
-      return [
-        {
-          id: 'cat-cotton',
-          name: 'Cotton',
-          slug: 'cotton',
-          description: 'Pure long-staple combed cottons, royal Egyptian Giza weaves, and pristine crisp traditional latha.',
-          imageUrl: '/assets/aistudio/SARUS_Premium_Fabrics_Logo-removebg-preview_2b5db1d0.png',
-          isVisible: true,
-          sortOrder: 1,
-        },
-        {
-          id: 'cat-premium',
-          name: 'Premium Fabrics',
-          slug: 'premium-fabrics',
-          description: 'Certified organic Belgian flax linens, fine twills, and refined luxury textiles for understated elegance.',
-          imageUrl: '/assets/aistudio/Minimalist_Sarus_Premium_Fabrics_Label_9e7661c8.png',
-          isVisible: true,
-          sortOrder: 2,
-        },
-        {
-          id: 'cat-formal',
-          name: 'Formal Fabrics',
-          slug: 'formal-fabrics',
-          description: 'Embroidered festive raw silks, lustrous jacquards, and celebratory suit lengths crafted for timeless prestige.',
-          imageUrl: '/assets/aistudio/SARUS_Premium_Fabric_Label_7e6c150f.png',
-          isVisible: true,
-          sortOrder: 3,
-        },
-        {
-          id: 'cat-winter',
-          name: 'Winter Weaves',
-          slug: 'winter-weaves',
-          description: 'Authentic handloom winter Karandi, artisanal heavy khaddar, and fine Australian wool blends.',
-          imageUrl: '/assets/aistudio/Minimal_Urdu_Botanical_Label_4b635bb9.png',
-          isVisible: true,
-          sortOrder: 4,
-        },
-      ];
+      return DEFAULT_CATEGORIES;
     } catch {
-      return [];
+      return DEFAULT_CATEGORIES;
     }
   });
 
@@ -546,7 +509,108 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return false;
   });
 
-  const refreshData = async () => {
+  const isJsonResponse = (res: Response) =>
+    res.ok && (res.headers.get('content-type') || '').toLowerCase().includes('application/json');
+
+  const normalizeProductFromApi = (raw: any): Product => {
+    const seedMatch = INITIAL_PRODUCTS.find((p) => p.id === raw.id);
+    const hasVariants = Array.isArray(raw.variants) && raw.variants.length > 0;
+    const stockCount = typeof raw.stock === 'number' ? raw.stock : 25;
+    return {
+      ...seedMatch,
+      ...raw,
+      collectionIds: Array.isArray(raw.collectionIds) ? raw.collectionIds : (seedMatch?.collectionIds || []),
+      careInstructions: Array.isArray(raw.careInstructions) && raw.careInstructions.length > 0
+        ? raw.careInstructions
+        : (seedMatch?.careInstructions || [
+            'Pre-soak in cool water for 20 minutes before tailoring',
+            'Gentle machine or hand wash with mild detergent',
+            'Press on reverse side while slightly damp',
+          ]),
+      costPrice: typeof raw.costPrice === 'number' ? raw.costPrice : (seedMatch?.costPrice ?? Math.round((raw.price || 0) * 0.6)),
+      status: raw.status || (raw.isPublished === false ? 'inactive' : 'active'),
+      images: Array.isArray(raw.images)
+        ? raw.images.map((img: any, idx: number) => ({ ...img, sortRank: img.sortRank ?? idx + 1 }))
+        : (seedMatch?.images || []),
+      variants: hasVariants
+        ? raw.variants
+        : (seedMatch?.variants || [
+            {
+              id: `${raw.id}-v1`,
+              sku: `${raw.productSku || raw.id}-STD`,
+              size: raw.fit || '4.0m Suit',
+              color: { name: 'Signature Weave', hex: '#F7F4EE' },
+              status: 'active',
+              stockOnHand: stockCount,
+              stockReserved: 0,
+              lowStockThreshold: 5,
+            },
+          ]),
+    };
+  };
+
+  const normalizeOrderFromApi = (raw: any): Order => {
+    if (raw.customer && raw.totals) return raw as Order;
+    const subtotal = typeof raw.subtotal === 'number' ? raw.subtotal : 0;
+    const shipping = typeof raw.shippingFee === 'number' ? raw.shippingFee : 0;
+    const total = typeof raw.totalAmount === 'number' ? raw.totalAmount : subtotal + shipping;
+    return {
+      id: raw.id,
+      orderNumber: raw.orderNumber,
+      status: raw.status === 'pending' ? 'pending_confirmation' : raw.status,
+      version: 1,
+      customer: {
+        name: raw.customerName || 'Customer',
+        phone: raw.customerPhone || '',
+        email: raw.customerEmail,
+      },
+      shippingAddress: raw.shippingAddress || {
+        fullName: raw.customerName || 'Customer',
+        phone: raw.customerPhone || '',
+        province: 'Punjab',
+        city: '',
+        line1: '',
+      },
+      items: Array.isArray(raw.items)
+        ? raw.items.map((it: any, idx: number) => ({
+            id: it.id || `item-${idx}`,
+            productId: it.productId,
+            variantId: it.variantId || `${it.productId}-v1`,
+            productSku: it.productSku || '',
+            variantSku: it.variantSku || '',
+            name: it.name,
+            size: it.size || '4.0m Suit',
+            color: it.color || 'Signature',
+            imageUrl: it.imageUrl || '',
+            unitPrice: it.unitPrice || 0,
+            effectiveUnitPrice: it.unitPrice || 0,
+            quantity: it.quantity || 1,
+            lineTotal: it.totalPrice || (it.unitPrice || 0) * (it.quantity || 1),
+            costPriceSnapshot: 0,
+          }))
+        : [],
+      totals: {
+        merchandiseGross: subtotal,
+        promotionDiscount: 0,
+        couponDiscount: 0,
+        loyaltyRedeem: 0,
+        merchandiseNet: subtotal,
+        shipping,
+        codFee: 0,
+        total,
+      },
+      currency: 'PKR',
+      paymentMethod: raw.paymentMethod || 'cod',
+      paymentStatus: raw.status === 'delivered' ? 'cod_collected' : 'cod_awaiting',
+      loyaltyPointsEarnPlanned: Math.floor(subtotal / 100),
+      events: Array.isArray(raw.events) ? raw.events : [],
+      placedAt: raw.createdAt || new Date().toISOString(),
+      createdAt: raw.createdAt,
+      totalAmount: total,
+    };
+  };
+
+  const refreshData = async (includeOrders = isAdminAuthenticated) => {
     try {
       const [catRes, prodRes, setRes] = await Promise.allSettled([
         fetch('/api/categories'),
@@ -554,7 +618,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         fetch('/api/settings'),
       ]);
 
-      if (catRes.status === 'fulfilled' && catRes.value.ok) {
+      if (catRes.status === 'fulfilled' && isJsonResponse(catRes.value)) {
         const catData = await catRes.value.json();
         if (Array.isArray(catData) && catData.length > 0) {
           setCategoryItems(catData);
@@ -562,26 +626,40 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         }
       }
 
-      if (prodRes.status === 'fulfilled' && prodRes.value.ok) {
+      if (prodRes.status === 'fulfilled' && isJsonResponse(prodRes.value)) {
         const prodData = await prodRes.value.json();
         if (Array.isArray(prodData) && prodData.length > 0) {
-          setProducts(prodData);
+          setProducts(prodData.map(normalizeProductFromApi));
         }
       }
 
-      if (setRes.status === 'fulfilled' && setRes.value.ok) {
+      if (setRes.status === 'fulfilled' && isJsonResponse(setRes.value)) {
         const setData = await setRes.value.json();
         if (setData && typeof setData === 'object') {
-          setSettings((prev) => ({ ...prev, ...setData }));
+          setSettings((prev) => ({
+            ...prev,
+            storeName: setData.storeName || prev.storeName,
+            ownerName: setData.ownerName || prev.ownerName,
+            phone: setData.phone || prev.phone,
+            whatsappNumber: setData.whatsappNumber || setData.whatsapp || prev.whatsappNumber,
+            emailAddress: setData.emailAddress || setData.email || prev.emailAddress,
+            storeAddress: setData.storeAddress || setData.address || prev.storeAddress,
+            defaultShippingFee: setData.defaultShippingFee ?? setData.standardShippingFee ?? prev.defaultShippingFee,
+            freeShippingThreshold: setData.freeShippingThreshold ?? prev.freeShippingThreshold,
+            aboutHeading: setData.aboutHeading || prev.aboutHeading,
+            aboutText: setData.aboutText || prev.aboutText,
+          }));
         }
       }
 
       // If authenticated, also fetch authoritative orders
-      const ordersRes = await fetch('/api/orders').catch(() => null);
-      if (ordersRes && ordersRes.ok) {
-        const ordersData = await ordersRes.json();
-        if (Array.isArray(ordersData) && ordersData.length > 0) {
-          setOrders(ordersData);
+      if (includeOrders) {
+        const ordersRes = await fetch('/api/orders').catch(() => null);
+        if (ordersRes && isJsonResponse(ordersRes)) {
+          const ordersData = await ordersRes.json();
+          if (Array.isArray(ordersData) && ordersData.length > 0) {
+            setOrders(ordersData.map(normalizeOrderFromApi));
+          }
         }
       }
     } catch {
@@ -601,11 +679,12 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const checkAdminSession = async () => {
       try {
         const res = await fetch('/api/admin/session');
-        const data = await res.json();
+        const data = isJsonResponse(res) ? await res.json() : { authenticated: false };
         if (isMounted) {
           if (data.authenticated) {
             setIsAdminAuthenticated(true);
             setCurrentUser(STORE_USERS.owner);
+            refreshData(true);
           } else {
             setIsAdminAuthenticated(false);
             if (typeof window !== 'undefined' && (window.location.pathname.startsWith('/admin') || window.location.hash.startsWith('#admin'))) {
@@ -616,12 +695,15 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       } catch {
         if (isMounted) {
           setIsAdminAuthenticated(false);
+          if (typeof window !== 'undefined' && (window.location.pathname.startsWith('/admin') || window.location.hash.startsWith('#admin'))) {
+            setIsAdminLoginModalOpen(true);
+          }
         }
       }
     };
 
     checkAdminSession();
-    refreshData();
+    refreshData(false);
 
     return () => {
       isMounted = false;
@@ -643,7 +725,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       if (res.ok && data.success) {
         setIsAdminAuthenticated(true);
         setCurrentUser(STORE_USERS.owner);
-        refreshData();
+        refreshData(true);
         return { success: true };
       }
       return {

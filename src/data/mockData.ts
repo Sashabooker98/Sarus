@@ -1,0 +1,541 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import {
+  Product,
+  CategoryItem,
+  Coupon,
+  ShippingZone,
+  StoreSettings,
+  Order,
+  AuditLog,
+  ReturnRequest,
+  CustomerRecord,
+  ProductReview,
+} from '../types/index.ts';
+import { SHIPPING_ZONES } from '../config/shipping.ts';
+import { STORE_CONTACT } from '../config/storeContact.ts';
+
+const SEED_TIMESTAMP = '2026-01-15T09:00:00.000Z';
+
+export const DEFAULT_CATEGORIES: CategoryItem[] = [
+  {
+    id: 'cat-cotton',
+    name: 'Cotton',
+    slug: 'cotton',
+    description:
+      'Pure long-staple combed cottons, royal Egyptian Giza weaves, and pristine crisp traditional latha.',
+    imageUrl: '/assets/aistudio/SARUS_Premium_Fabrics_Logo-removebg-preview_2b5db1d0.png',
+    isVisible: true,
+    sortOrder: 1,
+  },
+  {
+    id: 'cat-premium',
+    name: 'Premium Fabrics',
+    slug: 'premium-fabrics',
+    description:
+      'Certified organic Belgian flax linens, fine twills, and refined luxury textiles for understated elegance.',
+    imageUrl: '/assets/aistudio/Minimalist_Sarus_Premium_Fabrics_Label_9e7661c8.png',
+    isVisible: true,
+    sortOrder: 2,
+  },
+  {
+    id: 'cat-formal',
+    name: 'Formal Fabrics',
+    slug: 'formal-fabrics',
+    description:
+      'Embroidered festive raw silks, lustrous jacquards, and celebratory suit lengths crafted for timeless prestige.',
+    imageUrl: '/assets/aistudio/SARUS_Premium_Fabric_Label_7e6c150f.png',
+    isVisible: true,
+    sortOrder: 3,
+  },
+  {
+    id: 'cat-winter',
+    name: 'Winter Weaves',
+    slug: 'winter-weaves',
+    description:
+      'Authentic handloom winter Karandi, artisanal heavy khaddar, and fine Australian wool blends.',
+    imageUrl: '/assets/aistudio/Minimal_Urdu_Botanical_Label_4b635bb9.png',
+    isVisible: true,
+    sortOrder: 4,
+  },
+];
+
+export const INITIAL_PRODUCTS: Product[] = [
+  {
+    id: 'prod-giza-cotton',
+    name: 'Royal Egyptian Giza Cotton (4.5m Unstitched Suit)',
+    slug: 'royal-egyptian-giza-cotton',
+    productSku: 'SR-GIZA-01',
+    description:
+      'Woven from extra-long staple Egyptian Giza cotton yarns for exceptional softness, subtle natural luster, and superior breathability in all seasons. Cut generously for a full men’s or women’s shalwar kameez.',
+    audience: 'unisex',
+    season: 'all_season',
+    category: 'Cotton',
+    collectionIds: [],
+    tags: ['cotton', 'giza', 'unstitched suit', 'all season'],
+    keywords: ['cotton', 'giza', 'egyptian cotton', 'white', 'shalwar kameez', 'unstitched suit'],
+    fabric: '100% Combed Egyptian Giza Cotton (120/2 yarn count)',
+    fit: 'Generous 4.5m Unstitched Suit Length (54" Arz)',
+    careInstructions: [
+      'Pre-soak in cool clean water for 20 minutes prior to tailoring',
+      'Gentle machine or hand wash with mild liquid detergent',
+      'Line dry in shade and steam iron slightly damp',
+    ],
+    images: [
+      {
+        id: 'img-giza-1',
+        url: '/assets/aistudio/Minimalist_Sarus_Premium_Fabrics_Label_9e7661c8.png',
+        alt: 'Royal Egyptian Giza Cotton Unstitched Suit',
+        sortRank: 1,
+      },
+    ],
+    price: 4950,
+    salePrice: 4450,
+    costPrice: 3100,
+    status: 'active',
+    isFeatured: true,
+    isPublished: true,
+    stock: 45,
+    variants: [
+      {
+        id: 'var-giza-45m',
+        sku: 'SR-GIZA-01-45M',
+        size: '4.5m Suit',
+        color: { name: 'Ivory White', hex: '#FAF8F5' },
+        status: 'active',
+        stockOnHand: 30,
+        stockReserved: 0,
+        lowStockThreshold: 5,
+      },
+      {
+        id: 'var-giza-25m',
+        sku: 'SR-GIZA-01-25M',
+        size: '2.5m Kurta',
+        color: { name: 'Ivory White', hex: '#FAF8F5' },
+        status: 'active',
+        stockOnHand: 15,
+        stockReserved: 0,
+        lowStockThreshold: 3,
+      },
+    ],
+    createdAt: SEED_TIMESTAMP,
+    updatedAt: SEED_TIMESTAMP,
+  },
+  {
+    id: 'prod-royal-latha',
+    name: "Royal Crisp Latha Cotton (Men's Traditional 4.5m)",
+    slug: 'royal-crisp-latha-cotton',
+    productSku: 'SR-LTH-07',
+    description:
+      'The definitive Pakistani white suit fabric. Crisp, stiff yet breathable combed cotton latha with a pristine snow finish. Tailors cleanly into sharp shalwar kameez collars and cuffs.',
+    audience: 'men',
+    season: 'all_season',
+    category: 'Cotton',
+    collectionIds: [],
+    tags: ['latha', 'men', 'cotton', 'traditional', 'crisp'],
+    keywords: ['latha', 'crisp latha', 'white latha', 'pure cotton', 'men shalwar kameez', 'snow white'],
+    fabric: '100% Combed Compact White Cotton Latha',
+    fit: '4.5 Meters Single-Width (36" Arz Traditional Cut)',
+    careInstructions: [
+      'Soak in cold water before stitching for crisp finish retention',
+      'Wash whites separately using gentle detergent without bleach',
+      'Press with hot cotton steam setting while lightly damp',
+    ],
+    images: [
+      {
+        id: 'img-lth-1',
+        url: '/assets/aistudio/SARUS_Premium_Fabric_Label_7e6c150f.png',
+        alt: 'Royal Crisp Latha Cotton',
+        sortRank: 1,
+      },
+    ],
+    price: 4200,
+    costPrice: 2650,
+    status: 'active',
+    isFeatured: true,
+    isPublished: true,
+    stock: 50,
+    variants: [
+      {
+        id: 'var-lth-45m',
+        sku: 'SR-LTH-07-45M',
+        size: '4.5m Suit',
+        color: { name: 'Snow White', hex: '#FFFFFF' },
+        status: 'active',
+        stockOnHand: 35,
+        stockReserved: 0,
+        lowStockThreshold: 5,
+      },
+      {
+        id: 'var-lth-25m',
+        sku: 'SR-LTH-07-25M',
+        size: '2.5m Kurta',
+        color: { name: 'Snow White', hex: '#FFFFFF' },
+        status: 'active',
+        stockOnHand: 15,
+        stockReserved: 0,
+        lowStockThreshold: 3,
+      },
+    ],
+    createdAt: SEED_TIMESTAMP,
+    updatedAt: SEED_TIMESTAMP,
+  },
+  {
+    id: 'prod-festive-silk',
+    name: 'Embroidered Festive Raw Silk Suit Length',
+    slug: 'festive-raw-silk-suit-length',
+    productSku: 'SR-SLK-04',
+    description:
+      'Opulent raw silk unstitched fabric featuring a rich woven texture and subtle aristocratic sheen. Designed for celebratory weddings, festive Eid celebrations, and formal gatherings.',
+    audience: 'women',
+    season: 'all_season',
+    category: 'Formal Fabrics',
+    collectionIds: [],
+    tags: ['raw silk', 'festive', 'luxury', 'formal', 'women'],
+    keywords: ['silk', 'raw silk', 'festive', 'wedding', 'formal', 'emerald', 'party wear'],
+    fabric: '100% Pure Mulberry Raw Silk',
+    fit: '4.0 Meters (50" Arz)',
+    careInstructions: [
+      'Dry clean only to preserve raw silk slub texture and sheen',
+      'Do not wring or tumble dry',
+      'Steam on low heat from the reverse side using a pressing cloth',
+    ],
+    images: [
+      {
+        id: 'img-slk-1',
+        url: '/assets/aistudio/Minimal_Urdu_Botanical_Label_4b635bb9.png',
+        alt: 'Festive Raw Silk Suit Length',
+        sortRank: 1,
+      },
+    ],
+    price: 9800,
+    salePrice: 8950,
+    costPrice: 6400,
+    status: 'active',
+    isFeatured: true,
+    isPublished: true,
+    stock: 18,
+    variants: [
+      {
+        id: 'var-slk-40m',
+        sku: 'SR-SLK-04-40M',
+        size: '4.0m Suit',
+        color: { name: 'Antique Gold', hex: '#C5B39C' },
+        status: 'active',
+        stockOnHand: 18,
+        stockReserved: 0,
+        lowStockThreshold: 4,
+      },
+    ],
+    createdAt: SEED_TIMESTAMP,
+    updatedAt: SEED_TIMESTAMP,
+  },
+  {
+    id: 'prod-winter-karandi',
+    name: 'Heritage Handloom Winter Karandi (4.0m Suit)',
+    slug: 'heritage-handloom-winter-karandi',
+    productSku: 'SR-KAR-02',
+    description:
+      'Authentic textured winter Karandi woven on heritage handlooms. Features distinctive spun slub textures with natural thermal insulation for cold winter evenings across Pakistan.',
+    audience: 'men',
+    season: 'winter',
+    category: 'Winter Weaves',
+    collectionIds: [],
+    tags: ['karandi', 'winter', 'handloom', 'unstitched suit', 'men'],
+    keywords: ['karandi', 'winter', 'handloom', 'slub', 'warm', 'camel', 'tan', 'pakistani'],
+    fabric: 'Pure Spun Karandi Cotton & Wool Slub Blend',
+    fit: '4.0 Meters Double-Width (54" Arz)',
+    careInstructions: [
+      'Pre-soak gently in lukewarm water before tailoring',
+      'Hand wash cold with mild wool-safe detergent',
+      'Dry flat in shade to retain handloom slub structure',
+    ],
+    images: [
+      {
+        id: 'img-kar-1',
+        url: '/assets/aistudio/SARUS_Premium_Fabric_Label_7e6c150f.png',
+        alt: 'Heritage Winter Karandi Unstitched Suit',
+        sortRank: 1,
+      },
+    ],
+    price: 6850,
+    costPrice: 4400,
+    status: 'active',
+    isFeatured: true,
+    isPublished: true,
+    stock: 28,
+    variants: [
+      {
+        id: 'var-kar-40m',
+        sku: 'SR-KAR-02-40M',
+        size: '4.0m Suit',
+        color: { name: 'Warm Camel', hex: '#B89F80' },
+        status: 'active',
+        stockOnHand: 28,
+        stockReserved: 0,
+        lowStockThreshold: 5,
+      },
+    ],
+    createdAt: SEED_TIMESTAMP,
+    updatedAt: SEED_TIMESTAMP,
+  },
+  {
+    id: 'prod-belgian-linen',
+    name: 'Organic Belgian Flax Linen Ensemble',
+    slug: 'organic-belgian-flax-linen',
+    productSku: 'SR-LIN-03',
+    description:
+      'Luxurious pure Belgian flax linen known for its effortless relaxed drape, exceptional air permeability, and natural cooling properties. Ideal for sophisticated summer ensembles.',
+    audience: 'unisex',
+    season: 'summer',
+    category: 'Premium Fabrics',
+    collectionIds: [],
+    tags: ['flax linen', 'organic', 'summer', 'luxury'],
+    keywords: ['linen', 'belgian linen', 'flax', 'organic', 'summer', 'breathable', 'sand'],
+    fabric: '100% Certified Organic Belgian Flax Linen',
+    fit: '4.0 Meters Double-Width (54" Arz)',
+    careInstructions: [
+      'Pre-wash in cool water prior to cutting',
+      'Gentle cycle wash and natural air dry',
+      'Steam press while slightly damp for soft natural drape',
+    ],
+    images: [
+      {
+        id: 'img-lin-1',
+        url: '/assets/aistudio/Minimalist_Sarus_Premium_Fabrics_Label_9e7661c8.png',
+        alt: 'Organic Belgian Flax Linen Ensemble',
+        sortRank: 1,
+      },
+    ],
+    price: 5750,
+    salePrice: 5200,
+    costPrice: 3750,
+    status: 'active',
+    isFeatured: false,
+    isPublished: true,
+    stock: 35,
+    variants: [
+      {
+        id: 'var-lin-40m',
+        sku: 'SR-LIN-03-40M',
+        size: '4.0m Suit',
+        color: { name: 'Oatmeal Sand', hex: '#E5DDD0' },
+        status: 'active',
+        stockOnHand: 35,
+        stockReserved: 0,
+        lowStockThreshold: 5,
+      },
+    ],
+    createdAt: SEED_TIMESTAMP,
+    updatedAt: SEED_TIMESTAMP,
+  },
+  {
+    id: 'prod-merino-wool',
+    name: 'Superfine Merino Pashmina Wool Blend',
+    slug: 'superfine-merino-pashmina-wool-blend',
+    productSku: 'SR-WOL-05',
+    description:
+      'Impeccably woven winter fabric combining superfine Australian merino wool with delicate cashmere yarns. Offers supreme warmth with weightless, fluid drape.',
+    audience: 'men',
+    season: 'winter',
+    category: 'Winter Weaves',
+    collectionIds: [],
+    tags: ['merino wool', 'winter', 'pashmina', 'bespoke', 'men'],
+    keywords: ['wool', 'merino', 'pashmina', 'cashmere', 'charcoal', 'winter', 'warm'],
+    fabric: '85% Superfine Merino Wool, 15% Cashmere',
+    fit: '4.0 Meters Double-Width (56" Arz)',
+    careInstructions: [
+      'Professional dry cleaning recommended',
+      'Store folded in breathable cotton garment bag',
+      'Light steam only; avoid direct high-heat ironing',
+    ],
+    images: [
+      {
+        id: 'img-wol-1',
+        url: '/assets/aistudio/Minimal_Urdu_Botanical_Label_4b635bb9.png',
+        alt: 'Superfine Merino Pashmina Wool Blend',
+        sortRank: 1,
+      },
+    ],
+    price: 8500,
+    costPrice: 5600,
+    status: 'active',
+    isFeatured: false,
+    isPublished: true,
+    stock: 22,
+    variants: [
+      {
+        id: 'var-wol-40m',
+        sku: 'SR-WOL-05-40M',
+        size: '4.0m Suit',
+        color: { name: 'Deep Charcoal', hex: '#2A2521' },
+        status: 'active',
+        stockOnHand: 22,
+        stockReserved: 0,
+        lowStockThreshold: 4,
+      },
+    ],
+    createdAt: SEED_TIMESTAMP,
+    updatedAt: SEED_TIMESTAMP,
+  },
+  {
+    id: 'prod-summer-lawn',
+    name: 'Artisanal Printed & Embroidered Summer Lawn',
+    slug: 'artisanal-printed-embroidered-summer-lawn',
+    productSku: 'SR-LWN-06',
+    description:
+      'Ultra-fine combed lawn with delicate Swiss-embroidered neck patch and matching chiffon dupatta. Crafted for effortless elegance in the Pakistani heat.',
+    audience: 'women',
+    season: 'summer',
+    category: 'Formal Fabrics',
+    collectionIds: [],
+    tags: ['lawn', 'summer', 'embroidered', '3-piece', 'women'],
+    keywords: ['lawn', 'summer lawn', '3 piece', 'chiffon dupatta', 'embroidered', 'swiss lawn'],
+    fabric: '100% Combed Swiss Lawn (80s Yarn) with Pure Silk Chiffon Dupatta',
+    fit: '3-Piece Complete Unstitched (Shirt 3m, Trouser 2.5m, Dupatta 2.5m)',
+    careInstructions: [
+      'Hand wash gently in cool water',
+      'Do not soak embroidered panels for extended periods',
+      'Dry in shade and iron on medium cotton setting',
+    ],
+    images: [
+      {
+        id: 'img-lwn-1',
+        url: '/assets/aistudio/Minimalist_Sarus_Premium_Fabrics_Label_9e7661c8.png',
+        alt: 'Artisanal Printed & Embroidered Summer Lawn',
+        sortRank: 1,
+      },
+    ],
+    price: 5450,
+    costPrice: 3500,
+    status: 'active',
+    isFeatured: false,
+    isPublished: true,
+    stock: 40,
+    variants: [
+      {
+        id: 'var-lwn-3pc',
+        sku: 'SR-LWN-06-3PC',
+        size: '3-Piece Set',
+        color: { name: 'Botanical Ecru', hex: '#EFE8DC' },
+        status: 'active',
+        stockOnHand: 40,
+        stockReserved: 0,
+        lowStockThreshold: 5,
+      },
+    ],
+    createdAt: SEED_TIMESTAMP,
+    updatedAt: SEED_TIMESTAMP,
+  },
+  {
+    id: 'prod-artisanal-khaddar',
+    name: 'Artisanal Spun Khaddar (Warm Rustic 4.0m Length)',
+    slug: 'artisanal-spun-khaddar',
+    productSku: 'SR-KHD-08',
+    description:
+      'Hand-spun natural khaddar woven in the heart of Punjab. Rich tactile grain with cozy warmth, offering authentic Pakistani heritage in every stitch.',
+    audience: 'men',
+    season: 'winter',
+    category: 'Winter Weaves',
+    collectionIds: [],
+    tags: ['khaddar', 'hand-spun', 'winter', 'heritage', 'men'],
+    keywords: ['khaddar', 'kamalia khaddar', 'hand spun', 'winter', 'rustic', 'earthy'],
+    fabric: '100% Hand-Spun Textured Cotton Khaddar',
+    fit: '4.0 Meters Double-Width (54" Arz)',
+    careInstructions: [
+      'Pre-shrink in cold water for 30 minutes before cutting',
+      'Wash gently inside out with mild detergent',
+      'Air dry in shade; press with warm steam',
+    ],
+    images: [
+      {
+        id: 'img-khd-1',
+        url: '/assets/aistudio/SARUS_Premium_Fabric_Label_7e6c150f.png',
+        alt: 'Artisanal Spun Khaddar Length',
+        sortRank: 1,
+      },
+    ],
+    price: 4800,
+    costPrice: 3000,
+    status: 'active',
+    isFeatured: false,
+    isPublished: true,
+    stock: 32,
+    variants: [
+      {
+        id: 'var-khd-40m',
+        sku: 'SR-KHD-08-40M',
+        size: '4.0m Suit',
+        color: { name: 'Earth Taupe', hex: '#8A7864' },
+        status: 'active',
+        stockOnHand: 32,
+        stockReserved: 0,
+        lowStockThreshold: 5,
+      },
+    ],
+    createdAt: SEED_TIMESTAMP,
+    updatedAt: SEED_TIMESTAMP,
+  },
+];
+
+export const INITIAL_COUPONS: Coupon[] = [];
+
+export const INITIAL_SHIPPING_ZONES: ShippingZone[] = SHIPPING_ZONES;
+
+export const INITIAL_SETTINGS: StoreSettings = {
+  storeName: 'SARUS Premium Fabrics',
+  ownerName: 'Suleman Sarwar',
+  orderPrefix: 'SC-',
+  freeShippingThreshold: 3500,
+  defaultShippingFee: 190,
+  currency: 'PKR',
+  timezone: 'Asia/Karachi',
+  returnWindowDays: 7,
+  loyaltyEarnPer100Pkr: 1,
+  loyaltyPointValuePkr: 1,
+  loyaltyMinRedeem: 100,
+  loyaltyMaxRedeemPercent: 20,
+  payments: {
+    cod: { enabled: true, status: 'live' },
+    jazzcash: { enabled: false, status: 'not_configured' },
+    easypaisa: { enabled: false, status: 'not_configured' },
+  },
+  bannerEnabled: true,
+  bannerText: 'CRAFTED WITH CARE · MADE TO INSPIRE',
+  bannerSubtext: 'PREMIUM FABRICS · CASH ON DELIVERY NATIONWIDE',
+  brandInfo:
+    'SARUS Premium Fabrics (سیرس) — Crafted with Care, Made to Inspire. Artisanal fine cottons, pure European linens, and heritage Pakistani handloom weaves.',
+  phone: STORE_CONTACT.phone,
+  whatsappNumber: STORE_CONTACT.whatsapp,
+  emailAddress: 'sulemansarwar.sarus@gmail.com',
+  storeAddress: STORE_CONTACT.address,
+  operatingHours: 'Monday – Saturday, 10:00 AM – 8:00 PM PKT',
+  aboutHeading: 'Thoughtfully Selected. Beautifully Presented.',
+  aboutText:
+    'Founded by Suleman Sarwar in Sadiqabad, Punjab, SARUS Premium Fabrics celebrates the timeless heritage of South Asian dressing. Each length of fabric is thoughtfully inspected and curated—from extra-long staple Egyptian Giza cottons and crisp snow-white latha to authentic handloom winter karandi and festive pure mulberry silks. Delivered with care to doorsteps across Pakistan.',
+};
+
+// Legitimate empty initial states — no fabricated sales, orders, customers, returns, reviews, or audit logs
+export const INITIAL_ORDERS: Order[] = [];
+export const INITIAL_AUDIT_LOGS: AuditLog[] = [];
+export const INITIAL_RETURNS: ReturnRequest[] = [];
+export const INITIAL_CUSTOMERS: CustomerRecord[] = [];
+export const INITIAL_REVIEWS: ProductReview[] = [];
+
+export const POPULAR_SEARCH_KEYWORDS: string[] = [
+  'Egyptian Giza Cotton',
+  'Crisp White Latha',
+  'Handloom Karandi',
+  'Belgian Linen',
+  'Festive Raw Silk',
+  'Summer Lawn',
+  'Merino Wool',
+  'Kamalia Khaddar',
+];
+
+export function getEmptyProductImagePlaceholder(_productName?: string): string {
+  return '/assets/aistudio/Minimalist_Sarus_Premium_Fabrics_Label_9e7661c8.png';
+}

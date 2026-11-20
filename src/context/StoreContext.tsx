@@ -33,7 +33,7 @@ import {
   INITIAL_CUSTOMERS,
   INITIAL_REVIEWS,
   DEFAULT_CATEGORIES,
-} from '../data/mockData.ts';
+} from '../data/mockData';
 import { calculateOrderPricing, PricingResult } from '../utils/pricing.ts';
 import { canTransitionOrder } from '../utils/orderMachine.ts';
 

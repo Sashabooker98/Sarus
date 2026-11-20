@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { useStore } from '../../context/StoreContext.tsx';
 import { Product, Audience, Season, ProductStatus, ProductVariant } from '../../types/index.ts';
-import { getEmptyProductImagePlaceholder } from '../../data/mockData.ts';
+import { getEmptyProductImagePlaceholder } from '../../data/mockData';
 
 export const ProductsView: React.FC = () => {
   const { products, updateProduct, addProduct, deleteProduct, categories, addCategory, deleteCategory } = useStore();

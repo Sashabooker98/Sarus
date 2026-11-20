@@ -7,7 +7,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Trash2, ArrowRight, ShoppingBag, Tag, Check, AlertCircle } from 'lucide-react';
 import { useStore } from '../../context/StoreContext.tsx';
-import { getEmptyProductImagePlaceholder } from '../../data/mockData.ts';
+import { getEmptyProductImagePlaceholder } from '../../data/mockData';
 
 export const CartDrawer: React.FC = () => {
   const {

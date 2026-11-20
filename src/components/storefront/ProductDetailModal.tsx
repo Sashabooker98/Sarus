@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { Product, ProductVariant } from '../../types/index.ts';
 import { useStore } from '../../context/StoreContext.tsx';
-import { getEmptyProductImagePlaceholder } from '../../data/mockData.ts';
+import { getEmptyProductImagePlaceholder } from '../../data/mockData';
 
 export const ProductDetailModal: React.FC = () => {
   const {

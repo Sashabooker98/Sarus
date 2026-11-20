@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { Tag, Plus, Check, AlertCircle, TicketPercent } from 'lucide-react';
-import { INITIAL_COUPONS } from '../../data/mockData.ts';
+import { INITIAL_COUPONS } from '../../data/mockData';
 import { Coupon, CouponType } from '../../types/index.ts';
 
 export const CouponsView: React.FC = () => {

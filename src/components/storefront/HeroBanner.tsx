@@ -16,7 +16,7 @@ import {
   Layers,
 } from 'lucide-react';
 import { useStore } from '../../context/StoreContext.tsx';
-import { POPULAR_SEARCH_KEYWORDS } from '../../data/mockData.ts';
+import { POPULAR_SEARCH_KEYWORDS } from '../../data/mockData';
 import { STORE_CONTACT, buildWhatsAppLink } from '../../config/storeContact.ts';
 
 interface HeroSlide {

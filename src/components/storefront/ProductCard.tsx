@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Heart, Plus, Eye, Check } from 'lucide-react';
 import { Product } from '../../types/index.ts';
 import { useStore } from '../../context/StoreContext.tsx';
-import { getEmptyProductImagePlaceholder } from '../../data/mockData.ts';
+import { getEmptyProductImagePlaceholder } from '../../data/mockData';
 
 interface ProductCardProps {
   product: Product;

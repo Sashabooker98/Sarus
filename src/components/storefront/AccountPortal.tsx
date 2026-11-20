@@ -17,7 +17,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { useStore } from '../../context/StoreContext.tsx';
-import { getEmptyProductImagePlaceholder } from '../../data/mockData.ts';
+import { getEmptyProductImagePlaceholder } from '../../data/mockData';
 
 export const AccountPortal: React.FC = () => {
   const {
